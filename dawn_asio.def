@@ -1,0 +1,6 @@
+LIBRARY dawn_pro2_asio.dll
+EXPORTS
+    DllCanUnloadNow     PRIVATE
+    DllGetClassObject   PRIVATE
+    DllRegisterServer   PRIVATE
+    DllUnregisterServer PRIVATE

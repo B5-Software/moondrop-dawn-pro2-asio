@@ -1,0 +1,36 @@
+;
+; Moondrop Dawn Pro 2 - WinUSB Driver Installation INF
+; Interface 01 (Audio Streaming)
+;
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = USBDevice
+ClassGUID   = {88BAE032-5A81-49f0-BC3D-A4FF138216D6}
+Provider    = %ManufacturerName%
+DriverVer   = 10/18/2026, 1.0.0.0
+
+[Manufacturer]
+%ManufacturerName% = Standard,NTamd64
+
+[Standard.NTamd64]
+%DeviceName% = USB_Install, USB\VID_35D8&PID_011D&MI_01
+
+[USB_Install]
+Include = winusb.inf
+Needs   = WINUSB.NT
+
+[USB_Install.Services]
+Include = winusb.inf
+Needs   = WINUSB.NT.Services
+
+[USB_Install.HW]
+AddReg = Dev_AddReg
+
+[Dev_AddReg]
+; Expose Custom Device Interface GUID for Dawn Pro 2 ASIO Driver
+HKR,,DeviceInterfaceGUIDs,0x10000,"{E47856C8-111E-4509-913A-446ECBE4E402}"
+
+[Strings]
+ManufacturerName = "MOONDROP"
+DeviceName       = "MOONDROP DAWN PRO 2 (Native DSD Streaming Interface)"

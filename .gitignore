@@ -1,0 +1,44 @@
+# Build artifacts
+*.dll.new
+*.dll.old
+*stale*
+*old_*
+dawn_pro2_asio_winusb_backup.dll
+
+# Logs & temp files
+*.log
+driver_log.txt
+*.tmp
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Audio test files & recordings
+captures/
+test/*.wav
+test/*.dsf
+*.wav
+
+# Vendor binaries & local firmware images
+*.bin
+vendor_driver/
+foobar/
+
+# Local engineering scratch notes
+WORKLOG_*.md
+MORNING_PLAN.md
+P2_LIBUSBK_NOTES.md
+DAWN_PRO2_DSD_DEVELOPMENT_REPORT.md
+*.metadata.json
+
+# Scratch tools & third-party bundles
+tools/*
+!tools/asio_host_test.py
+!tools/asio_host_pcm_test.py
+
+# IDE & OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,67 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Native ASIO Driver
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MinGW-w64 via MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: mingw-w64-x86_64-gcc
+
+      - name: Compile dawn_pro2_asio.dll
+        shell: msys2 {0}
+        run: |
+          g++ -O2 -shared -static -Wall -o dawn_pro2_asio.dll dawn_asio.cpp dawn_asio.def -I. -lwinmm -ladvapi32 -luser32 -lole32 -luuid
+          strip --strip-unneeded dawn_pro2_asio.dll
+          ls -lh dawn_pro2_asio.dll
+
+      - name: Package Release ZIP
+        shell: pwsh
+        run: |
+          $ver = if ($env:GITHUB_REF -like "refs/tags/*") { $env:GITHUB_REF -replace "refs/tags/", "" } else { "nightly" }
+          $pkgName = "MOONDROP-DAWN-PRO2-ASIO-$ver"
+          New-Item -ItemType Directory -Path $pkgName
+          Copy-Item "dawn_pro2_asio.dll" -Destination $pkgName
+          Copy-Item "libusbK.dll" -Destination $pkgName
+          Copy-Item "install_asio.bat" -Destination $pkgName
+          Copy-Item "uninstall_asio.bat" -Destination $pkgName
+          Copy-Item "README.md" -Destination $pkgName
+          if (Test-Path "LICENSE") { Copy-Item "LICENSE" -Destination $pkgName }
+          Compress-Archive -Path "$pkgName\*" -DestinationPath "$pkgName.zip"
+          echo "PKG_NAME=$pkgName.zip" >> $env:GITHUB_ENV
+          echo "TAG_NAME=$ver" >> $env:GITHUB_ENV
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.TAG_NAME }}
+          path: ${{ env.PKG_NAME }}
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PKG_NAME }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
